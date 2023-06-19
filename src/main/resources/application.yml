@@ -1,0 +1,14 @@
+coin-market:
+  real-time-url: https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest
+  token: 424c7e24-0daa-4173-83ad-5e7b34b5073a
+  convert: USD
+  symbol: BTC,ETH
+
+kafka:
+  url:
+  topic:
+
+scheduler:
+  enabled: true
+  interval: "*/15 * * * * *"
+
