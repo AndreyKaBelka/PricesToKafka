@@ -1,5 +1,6 @@
 package org.andreykka.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.andreykka.dto.PricesDTO;
 import org.andreykka.httpclient.CoinMarketClient;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public class PriceService {
     CoinMarketClient coinMarketClient;
 
     @Scheduled(cron = "${scheduler.interval}")
-    void getPrices() {
+    void getPrices() throws JsonProcessingException {
         LOGGER.info("Started pulling prices from stockData...");
         PricesDTO currentPrices = coinMarketClient.getCurrentPrices();
         LOGGER.info(currentPrices.toString());
