@@ -48,7 +48,7 @@ public class BeanConfiguration {
     @Bean
     public NewTopic bitcoinTopic() {
         return TopicBuilder.name(kafkaConfig.getBitcoinTopic())
-                .partitions(10)
+                .partitions(1)
                 .replicas(1)
                 .build();
     }
@@ -56,7 +56,7 @@ public class BeanConfiguration {
     @Bean
     public NewTopic etheriumTopic() {
         return TopicBuilder.name(kafkaConfig.getEtheriumTopic())
-                .partitions(10)
+                .partitions(1)
                 .replicas(1)
                 .build();
     }

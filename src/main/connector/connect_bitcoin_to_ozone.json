@@ -1,0 +1,13 @@
+{
+  "connector.class": "io.confluent.connect.hdfs.HdfsSinkConnector",
+  "tasks.max": "1",
+  "topics.dir": "/data/bitcoin/",
+  "store.url": "hdfs://namenode:9000",
+  "topics": "bitcoin-topic",
+  "flush.size": "10",
+  "partitioner.class": "io.confluent.connect.hdfs.partitioner.HourlyPartitioner",
+  "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+  "locale": "US",
+  "timezone": "UTC",
+  "auto.offset.reset": "earliest"
+}
