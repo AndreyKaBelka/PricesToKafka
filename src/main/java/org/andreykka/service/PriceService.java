@@ -1,7 +1,8 @@
 package org.andreykka.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.SneakyThrows;
 import org.andreykka.dto.PricesDTO;
+import org.andreykka.dto.TokenPriceDTO;
 import org.andreykka.httpclient.CoinMarketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,19 @@ public class PriceService {
     @Autowired
     CoinMarketClient coinMarketClient;
 
+    @Autowired
+    KafkaService kafkaService;
+
     @Scheduled(cron = "${scheduler.interval}")
-    void getPrices() throws JsonProcessingException {
-        LOGGER.info("Started pulling prices from stockData...");
+    void getPrices() {
+        LOGGER.info("Started pulling prices from coinMarket...");
         PricesDTO currentPrices = coinMarketClient.getCurrentPrices();
-        LOGGER.info(currentPrices.toString());
+        LOGGER.info("Prices pulled successfully...");
+        currentPrices.getData().forEach(this::sendMessage);
+    }
+
+    @SneakyThrows
+    private void sendMessage(String cur, TokenPriceDTO tokenPrice) {
+        kafkaService.sendToKafka(tokenPrice.getQuote(), cur);
     }
 }

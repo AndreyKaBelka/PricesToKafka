@@ -4,11 +4,19 @@ coin-market:
   convert: USD
   symbol: BTC,ETH
 
-kafka:
-  url:
-  topic:
-
 scheduler:
   enabled: true
-  interval: "*/15 * * * * *"
+  interval: "0 * * * * ?"
+
+spring:
+  kafka:
+    bootstrap-servers: kafka:29092, kafka2:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+kafka:
+  bitcoin-topic: bitcoin-topic
+  etherium-topic: etherium-topic
+
 
