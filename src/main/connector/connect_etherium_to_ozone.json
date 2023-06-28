@@ -1,13 +1,20 @@
 {
+  "name": "etherium_current_prices",
+  "config": {
     "connector.class": "io.confluent.connect.hdfs.HdfsSinkConnector",
     "tasks.max": "1",
     "topics.dir": "/data/etherium/",
     "store.url": "hdfs://namenode:9000",
-    "topics": "etherium-topic",
-    "flush.size": "10",
+    "topics": "etherium-current-prices-topic",
+    "flush.size": "600",
     "partitioner.class": "io.confluent.connect.hdfs.partitioner.HourlyPartitioner",
-    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-    "locale": "US",
-    "timezone": "UTC",
-    "auto.offset.reset": "earliest"
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.enhanced.avro.schema.support": "true",
+    "value.converter.schema.registry.url": "http://schema-registry:8085",
+    "connect.meta.data": "false",
+    "format.class": "io.confluent.connect.hdfs.parquet.ParquetFormat",
+    "auto.offset.reset": "latest",
+    "locale": "us",
+    "timezone": "UTC"
+  }
 }

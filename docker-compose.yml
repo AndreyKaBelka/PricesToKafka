@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:6.0.4
+    image: confluentinc/cp-zookeeper:7.0.4
     networks:
       - docker-hadoop_default
     environment:
@@ -11,7 +11,7 @@ services:
       - "22181:2181"
 
   kafka:
-    image: confluentinc/cp-kafka:6.0.4
+    image: confluentinc/cp-kafka:7.0.4
     depends_on:
       - zookeeper
     ports:
@@ -25,10 +25,11 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8085
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   kafka2:
-    image: confluentinc/cp-kafka:6.0.4
+    image: confluentinc/cp-kafka:7.0.4
     depends_on:
       - zookeeper
     ports:
@@ -43,6 +44,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8085
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -56,6 +58,7 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092,kafka2:29093
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://schema-registry:8085
     links:
       - kafka
       - kafka2
@@ -66,43 +69,49 @@ services:
     container_name: prices_to_kafka
     ports:
       - "8080:8080"
+      - "5005:5005"
     restart: on-failure
     networks:
       - docker-hadoop_default
     depends_on:
       - kafka-ui
 
-#  schema-registry:
-#    image: confluentinc/cp-schema-registry
-#    hostname: schema_registry
-#    depends_on:
-#      - zookeeper
-#      - kafka
-#      - kafka2
-#    ports:
-#      - '8081:8081'
-#    environment:
-#      SCHEMA_REGISTRY_HOST_NAME: schema_registry
-#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka:29092,kafka2:29093"
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.0
+    networks:
+      - docker-hadoop_default
+    depends_on:
+      - zookeeper
+      - kafka
+      - kafka2
+    ports:
+      - '8085:8085'
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka:29092,kafka2:29093"
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
+      SCHEMA_REGISTRY_LISTENERS: "http://schema-registry:8085"
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect:6.0.4
+    image: confluentinc/cp-kafka-connect:7.0.4
     container_name: connect_prices_to_ozone
     ports:
       - "8083:8083"
     environment:
-      - CONNECT_BOOTSTRAP_SERVERS=kafka:29092,kafka2:29093
+      - CONNECT_BOOTSTRAP_SERVERS=kafka:29092,kafka2:29092
       - CONNECT_GROUP_ID=prices
       - CONNECT_CONFIG_STORAGE_TOPIC=prices-config
       - CONNECT_OFFSET_STORAGE_TOPIC=prices-offsets
       - CONNECT_STATUS_STORAGE_TOPIC=prices-status
       - CONNECT_REST_ADVERTISED_HOST_NAME=localhost
       - CONNECT_PLUGIN_PATH=/usr/share/java,/usr/share/confluent-hub-components,/libs
-      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
       - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
       - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
       - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8085
     volumes:
       - ./libs:/libs
     networks:

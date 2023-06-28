@@ -1,0 +1,47 @@
+{
+  "namespace": "org.andreykka.dto",
+  "type": "record",
+  "name": "CurrentPrice",
+  "fields": [
+    {
+      "name": "event",
+      "type": "string",
+      "doc": "Event type"
+    },
+    {
+      "name": "time",
+      "type": "long",
+      "doc": "Event time"
+    },
+    {
+      "name": "symbol",
+      "type": "string",
+      "doc": "Symbol"
+    },
+    {
+      "name": "price",
+      "type": "double",
+      "doc": "Mark price"
+    },
+    {
+      "name": "indexPrice",
+      "type": "double",
+      "doc": "Index price"
+    },
+    {
+      "name": "settlePrice",
+      "type": "double",
+      "doc": "Estimated Settle Price, only useful in the last hour before the settlement starts"
+    },
+    {
+      "name": "rate",
+      "type": "double",
+      "doc": "Funding rate"
+    },
+    {
+      "name": "nextFundingTime",
+      "type": "long",
+      "doc": "Next funding time"
+    }
+  ]
+}

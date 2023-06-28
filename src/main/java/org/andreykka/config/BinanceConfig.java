@@ -5,11 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Data
-@ConfigurationProperties(prefix = "coin-market")
+@ConfigurationProperties(prefix = "binance")
 @Configuration
-public class CoinMarketConfig {
+public class BinanceConfig {
     String realTimeUrl;
-    String token;
     String symbol;
-    String convert;
+    String currentPriceStreamName;
 }

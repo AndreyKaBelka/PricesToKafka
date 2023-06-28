@@ -1,22 +1,18 @@
-coin-market:
-  real-time-url: https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest
-  token: 424c7e24-0daa-4173-83ad-5e7b34b5073a
-  convert: USD
-  symbol: BTC,ETH
-
-scheduler:
-  enabled: true
-  interval: "0 * * * * ?"
+binance:
+  real-time-url: wss://fstream.binance.com
+  current-price-stream-name: markPrice
+  symbol: btcusdt
 
 spring:
   kafka:
     bootstrap-servers: kafka:29092, kafka2:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    properties:
+      schema.registry.url: http://schema-registry:8085
+      auto.register.schema: true
 
 kafka:
-  bitcoin-topic: bitcoin-topic
-  etherium-topic: etherium-topic
-
-
+  bitcoin-topic: bitcoin-current-prices-topic
+  etherium-topic: etherium-current-prices-topic
